@@ -53,6 +53,9 @@ It's recommended to use a virtual environment. For example, using venv:
 Camelot requires Ghostscript. Please install it from Ghostscript Downloads.
 
 ## Usage
+
+- Download your Grade History PDF from VTOP.
+
 - Run the application:
 
 - When prompted, enter the full path to your PDF grade history file.
