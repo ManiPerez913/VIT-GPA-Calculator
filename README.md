@@ -50,7 +50,7 @@ It's recommended to use a virtual environment. For example, using venv:
 ```
 3. **Install Ghostscript**
 
-Camelot requires Ghostscript. Please install it from Ghostscript Downloads.
+Camelot requires Ghostscript. Please install it from [Ghostscript Downloads.](https://ghostscript.com/releases/gsdnld.html)
 
 ## Usage
 
