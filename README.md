@@ -1,4 +1,21 @@
 # VIT-GPA-Calculator
+
+
+###########################################################################
+#                                                                         #
+#                                                                         #
+#   ___      ___ ___  _________        ________  ________  ________       #
+#  |\  \    /  /|\  \|\___   ___\     |\   ____\|\   __  \|\   __  \      #
+#  \ \  \  /  / | \  \|___ \  \_|     \ \  \___|\ \  \|\  \ \  \|\  \     #
+#   \ \  \/  / / \ \  \   \ \  \       \ \  \  __\ \   ____\ \   __  \    #
+#    \ \    / /   \ \  \   \ \  \       \ \  \|\  \ \  \___|\ \  \ \  \   #
+#     \ \__/ /     \ \__\   \ \__\       \ \_______\ \__\    \ \__\ \__\  #
+#      \|__|/       \|__|    \|__|        \|_______|\|__|     \|__|\|__|  #
+#                                                                         #
+#                                                                         #
+###########################################################################
+
+
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/VIT-GPA-Calculator/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/)
