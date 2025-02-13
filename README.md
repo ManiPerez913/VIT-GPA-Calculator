@@ -9,6 +9,7 @@ A Python application that extracts course grade data from a PDF file, calculates
 ## Table of Contents
 
 - [Features](#features)
+- [Versions](#versions)
 - [Requirements](#requirements)
 - [Setup](#setup)
 - [Usage](#usage)
@@ -25,12 +26,21 @@ VIT-GPA-Calculator is a Python application that extracts course grade data from 
 - Calculates current CGPA excluding courses with grade 'P'.
 - Displays a detailed analysis of grade distribution and courses by grade.
 - Simulates grade improvements and calculates potential new CGPA.
+- Enhanced user interface with Rich library for better visualization (in `main_advanced.py`).
+
+## Versions
+
+This project includes two versions of the main application:
+
+1. **`main.py`**: A basic version of the GPA calculator with console output.
+2. **`main_advanced.py`**: An advanced version with a richer user interface using the Rich library for better visualization.
 
 ## Requirements
 
 - Python 3.7 or above
 - [Camelot](https://camelot-py.readthedocs.io/en/master/) (requires dependencies such as Ghostscript)
 - [Pandas](https://pandas.pydata.org/)
+- [Rich](https://rich.readthedocs.io/en/stable/)
 
 ## Setup
 
@@ -57,6 +67,14 @@ Camelot requires Ghostscript. Please install it from [Ghostscript Downloads.](ht
 - Download your Grade History PDF from VTOP.
 
 - Run the application:
+  - For the basic version:
+    ```sh
+    python main.py
+    ```
+  - For the advanced version:
+    ```sh
+    python main_advanced.py
+    ```
 
 - When prompted, enter the full path to your PDF grade history file.
 
