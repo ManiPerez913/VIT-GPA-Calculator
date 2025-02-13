@@ -25,13 +25,11 @@ class CGPACalculator:
         }
 
     def normalize_course_title(self, title):
-        # Lowercase and remove all non-alphanumeric characters.
         title = str(title).lower()
         return re.sub(r'[^a-z0-9]', '', title)
 
     def extract_table_data(self, pdf_path):
         try:
-            # Use lattice flavor; if your PDF structure suits stream better, switch flavor.
             tables = camelot.read_pdf(pdf_path, pages='1-end', flavor='lattice', strip_text='\n')
             if not tables:
                 console.print("[bold red]No tables found in the PDF.[/]")
@@ -44,7 +42,6 @@ class CGPACalculator:
 
     def clean_table_data(self, df):
         try:
-            # Locate header row by finding a row that contains both "Course Code" and "Grade"
             header_row_index = None
             for i in range(len(df)):
                 row_values = [str(val).strip() for val in df.iloc[i].values]
@@ -58,7 +55,6 @@ class CGPACalculator:
             df = df.iloc[header_row_index + 1:].reset_index(drop=True)
             df.columns = headers
 
-            # Determine which date column to use (either "Date" or "Result Declared On")
             columns_to_keep = ["Course Code", "Course Title", "Credits", "Grade"]
             if "Date" in df.columns:
                 columns_to_keep.append("Date")
@@ -72,17 +68,14 @@ class CGPACalculator:
             df = df[columns_to_keep]
             df = df.dropna().reset_index(drop=True)
 
-            # Convert Credits to numeric, drop rows where conversion fails, then cast to int.
             df['Credits'] = pd.to_numeric(df['Credits'], errors='coerce')
             df = df.dropna(subset=['Credits'])
             df['Credits'] = df['Credits'].astype(int)
             df['Course Code'] = df['Course Code'].str.strip()
 
-            # Create cleaned display title and a normalized title for deduplication.
             df['display_title'] = df['Course Title'].str.strip()
             df['normalized_title'] = df['Course Title'].apply(self.normalize_course_title)
 
-            # Process date: if available, convert it; if not, create a dummy date range.
             if date_col:
                 df[date_col] = pd.to_datetime(df[date_col], errors='coerce', dayfirst=True)
                 df = df.dropna(subset=[date_col])
@@ -91,15 +84,10 @@ class CGPACalculator:
                 df['Date'] = pd.date_range(end='today', periods=len(df), freq='D')
                 sort_col = 'Date'
 
-            # Sort by date descending so that the most recent entry comes first.
             df = df.sort_values(by=sort_col, ascending=False)
-            # Drop duplicates based on the normalized title.
             df = df.drop_duplicates(subset='normalized_title', keep='first')
-
-            # Filter rows with valid grades.
             df = df[df['Grade'].isin(['S', 'A', 'B', 'C', 'D', 'E', 'F', 'P'])]
-
-            # Rename columns for consistency.
+            
             rename_map = {
                 'Course Code': 'course_code',
                 'display_title': 'course',
@@ -183,28 +171,28 @@ class CGPACalculator:
         total_credits = sum(distribution.values())
         return total_points / total_credits if total_credits > 0 else 0
 
-    def simulate_and_print(self, original_distribution, simulation_changes):
-        # Apply all simulation changes on top of the original distribution.
+    def simulate_and_print(self, original_distribution, simulation_changes, original_cgpa):
         new_distribution = original_distribution.copy()
         for change in simulation_changes:
             new_distribution = self.simulate_improvement(new_distribution, [change])
         new_cgpa = self.calculate_cgpa_from_distribution(new_distribution)
         
         # Build changes table.
-        changes_table = Table(title="Proposed Changes", box=box.SIMPLE)
-        changes_table.add_column("From", style="red")
-        changes_table.add_column("To", style="green")
-        changes_table.add_column("Credits", justify="right")
+        changes_table = Table(title="Changes Made", box=box.SIMPLE)
+        changes_table.add_column("From", style="red", justify="center")
+        changes_table.add_column("To", style="green", justify="center")
+        changes_table.add_column("Credits", justify="center", style="cyan")
         for from_grade, to_grade, credits in simulation_changes:
             changes_table.add_row(from_grade, to_grade, str(credits))
             
         # CGPA comparison table.
-        original_cgpa = self.calculate_cgpa_from_distribution(original_distribution)
-        cgpa_table = Table.grid()
+        cgpa_table = Table.grid(padding=1)
         cgpa_table.add_row("Original CGPA:", f"[bold yellow]{original_cgpa:.2f}[/]")
         cgpa_table.add_row("Projected CGPA:", f"[bold green]{new_cgpa:.2f}[/]")
         
-        console.print(Panel.fit(Group(changes_table, cgpa_table), title="[bold blue]Simulation Results[/]", border_style="blue"))
+        console.print(Panel.fit(Group(changes_table, cgpa_table),
+                                title="[bold blue]After Improvement[/bold blue]",
+                                border_style="blue"))
         return new_cgpa, new_distribution
 
 def main():
@@ -217,62 +205,106 @@ def main():
        ╚═══╝  ╚═╝   ╚═╝     ╚═════╝ ╚═╝     ╚═╝  ╚═╝
     """, justify="center", style="bold cyan")
     console.print(Panel.fit(ascii_art, title="[bold blue]VIT GPA ANALYZER[/]", subtitle="by Academic Insights"))
-
-    calculator = CGPACalculator()
+    
+    # Prompt for PDF path.
     while True:
-        pdf_path = console.input("[bold cyan]📁 Enter PDF path (or 'q' to quit): [/]")
+        pdf_path = console.input("[bold cyan]📁 Enter PDF path (or 'q' to quit): [/]").strip()
         if pdf_path.lower() == 'q':
             return
         if os.path.exists(pdf_path):
             break
-        console.print("[red]File not found. Please try again.[/]")
+        console.print("[red]File not found. Please try again.[/red]")
 
     with console.status("[bold green]Processing PDF...[/]", spinner="bouncingBall"):
-        raw_df = calculator.extract_table_data(pdf_path)
+        raw_df = CGPACalculator().extract_table_data(pdf_path)
         if raw_df is None:
             return
-        clean_df = calculator.clean_table_data(raw_df)
+        clean_df = CGPACalculator().clean_table_data(raw_df)
     if clean_df is None:
         return
 
+    # Display academic analysis.
+    calculator = CGPACalculator()
     current_cgpa, distribution = calculator.print_analysis(clean_df)
     original_dist = distribution.copy()
-    current_dist = distribution.copy()
     simulation_changes = []
+    
+    # Display an instruction box for the simulation workflow.
+    instructions = Panel.fit(
+        "[bold]Instructions:[/bold]\n"
+        "1. When adding a grade improvement, you will be asked for:\n"
+        "   • [bold]From Grade[/bold]: The current grade (e.g., B).\n"
+        "   • [bold]To Grade[/bold]: The target grade (e.g., S).\n"
+        "   • [bold]Credits to convert[/bold]: The number of credits to convert (e.g., 16).\n\n"
+        "2. You can chain multiple improvements. Use option 2 to view your current simulation chain.\n"
+        "3. Option 3 resets the chain, and Option 4 finalizes the simulation.\n",
+        title="[bold blue]Simulation Instructions[/bold blue]",
+        border_style="cyan"
+    )
+    console.print(instructions)
 
+    # Refined simulation loop with enhanced CLI menu and instruction boxes.
     while True:
-        sim_panel = Panel.fit(
-            "[bold]\n1. Simulate grade improvement\n2. View original grades\n3. Reset simulation\n4. Finalize & Exit\n[/bold]",
-            title="[yellow]Grade Simulator[/]", border_style="yellow"
-        )
-        console.print(sim_panel)
-        choice = console.input("\nEnter your choice (1-4): ")
+        sim_menu = Table(title="[yellow]Grade Improvement Simulator[/yellow]", box=box.HEAVY_EDGE, border_style="bright_blue")
+        sim_menu.add_column("Option", justify="center", style="bold white")
+        sim_menu.add_column("Action", justify="left", style="cyan")
+        sim_menu.add_row("1", "Add a new grade improvement")
+        sim_menu.add_row("2", "View current simulation chain")
+        sim_menu.add_row("3", "Reset simulation")
+        sim_menu.add_row("4", "Finalize simulation")
+        console.print(sim_menu)
+        
+        choice = console.input("\n[bold cyan]Enter your choice (1-4): [/bold cyan]").strip()
 
         if choice == '1':
-            console.print("\n[bold]Enter grade improvement details:[/bold]")
+            # Display instructions for entering grade improvement details.
+            input_instructions = Panel.fit(
+                "[bold]How to enter grade improvement details:[/bold]\n"
+                "- [bold]From Grade[/bold]: Current grade (e.g., B)\n"
+                "- [bold]To Grade[/bold]: Target grade (e.g., S)\n"
+                "- [bold]Credits to convert[/bold]: Numeric value (e.g., 16)\n"
+                "Press enter after each input.",
+                title="[bold magenta]Grade Improvement Input Instructions[/bold magenta]",
+                border_style="magenta"
+            )
+            console.print(input_instructions)
             try:
-                from_grade = console.input("From Grade (e.g., B): ").upper()
-                to_grade = console.input("To Grade (e.g., A): ").upper()
-                credits = float(console.input("Credits to convert: "))
+                from_grade = console.input("[bold]From Grade (e.g., B): [/bold]").upper().strip()
+                to_grade = console.input("[bold]To Grade (e.g., S): [/bold]").upper().strip()
+                credits = float(console.input("[bold]Credits to convert: [/bold]"))
                 simulation_changes.append((from_grade, to_grade, credits))
-                # Reapply all accumulated simulation changes.
-                final_cgpa, current_dist = calculator.simulate_and_print(original_dist, simulation_changes)
+                final_cgpa, new_distribution = calculator.simulate_and_print(original_dist, simulation_changes, current_cgpa)
+                console.print("[green]Grade improvement added successfully![/green]")
             except ValueError as e:
                 console.print(f"[red]Error: {e}[/red]")
 
         elif choice == '2':
-            calculator.print_analysis(clean_df)
+            if simulation_changes:
+                chain_table = Table(title="[bold magenta]Current Simulation Chain[/bold magenta]", box=box.SIMPLE_HEAVY)
+                chain_table.add_column("Step", justify="center", style="bold white")
+                chain_table.add_column("From", justify="center", style="red")
+                chain_table.add_column("To", justify="center", style="green")
+                chain_table.add_column("Credits", justify="center", style="cyan")
+                for i, change in enumerate(simulation_changes, start=1):
+                    chain_table.add_row(str(i), change[0], change[1], str(change[2]))
+                console.print(chain_table)
+            else:
+                console.print("[yellow]No simulation changes added yet.[/yellow]")
 
         elif choice == '3':
-            current_dist = original_dist.copy()
-            simulation_changes = []
-            console.print("[green]Simulation reset.[/green]")
+            simulation_changes.clear()
+            new_distribution = original_dist.copy()
+            console.print("[green]Simulation chain reset successfully.[/green]")
 
         elif choice == '4':
             if simulation_changes:
-                final_cgpa = calculator.calculate_cgpa_from_distribution(current_dist)
+                final_cgpa, new_distribution = calculator.simulate_and_print(original_dist, simulation_changes, current_cgpa)
+                console.rule("[bold green]Final Simulation Results[/bold green]")
                 console.print(Panel.fit(f"[bold green]Final Projected CGPA: {final_cgpa:.2f}[/bold green]",
-                                        title="[yellow]Final Results[/yellow]"))
+                                        title="[yellow]Final Results[/yellow]",
+                                        border_style="green"))
+            else:
+                console.print("[yellow]No simulation changes applied. Exiting simulation...[/yellow]")
             break
 
         else:
