@@ -50,9 +50,12 @@ It's recommended to use a virtual environment. For example, using venv:
 ```
 3. **Install Ghostscript**
 
-Camelot requires Ghostscript. Please install it from Ghostscript Downloads.
+Camelot requires Ghostscript. Please install it from [Ghostscript Downloads.](https://ghostscript.com/releases/gsdnld.html)
 
 ## Usage
+
+- Download your Grade History PDF from VTOP.
+
 - Run the application:
 
 - When prompted, enter the full path to your PDF grade history file.
