@@ -37,7 +37,7 @@ VIT-GPA-Calculator is a Python application that extracts course grade data from 
 1. **Clone the repository**
 
    ```sh
-   git clone https://github.com/yourusername/VIT-GPA-Calculator.git
+   git clone https://github.com/Kaos599/VIT-GPA-Calculator.git
    cd VIT-GPA-Calculator
    ```
 2. **Install dependencies**
