@@ -2,7 +2,7 @@
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/VIT-GPA-Calculator/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python Version](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/)
-[![Issues](https://img.shields.io/github/issues/yourusername/VIT-GPA-Calculator)](https://github.com/yourusername/VIT-GPA-Calculator/issues)
+[![Issues](https://img.shields.io/github/issues/Kaos599/VIT-GPA-Calculator)](https://github.com/Kaos599/VIT-GPA-Calculator/issues)
 
 A Python application that extracts course grade data from a PDF file, calculates your current CGPA, and allows you to simulate grade improvements.
 
@@ -37,7 +37,7 @@ VIT-GPA-Calculator is a Python application that extracts course grade data from 
 1. **Clone the repository**
 
    ```sh
-   git clone https://github.com/yourusername/VIT-GPA-Calculator.git
+   git clone https://github.com/Kaos599/VIT-GPA-Calculator.git
    cd VIT-GPA-Calculator
    ```
 2. **Install dependencies**
