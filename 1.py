@@ -14,7 +14,6 @@ class CGPACalculator:
             'D': 6,
             'E': 5,
             'F': 0,
-            'P': 0  # Not counted in CGPA
         }
 
     def normalize_course_title(self, title):
