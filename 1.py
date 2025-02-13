@@ -18,9 +18,9 @@ class CGPACalculator:
 
     def normalize_course_title(self, title):
         """Normalize course title by removing special characters and extra spaces."""
-        # Convert to lowercase
+        
         title = str(title).lower()
-        # Remove special characters and extra spaces
+        
         title = re.sub(r'[^a-z0-9]', '', title)
         return title
 
@@ -43,7 +43,7 @@ class CGPACalculator:
     def clean_table_data(self, df):
         """Cleans the raw table data and extracts relevant columns."""
         try:
-            # Find header row
+            
             header_row_index = None
             for i in range(len(df)):
                 row_values = [str(val).strip() for val in df.iloc[i].values]
@@ -54,17 +54,17 @@ class CGPACalculator:
             if header_row_index is None:
                 raise ValueError("Headers not found")
 
-            # Extract headers and data
+            
             headers = [str(val).strip() for val in df.iloc[header_row_index].values]
             df = df.iloc[header_row_index + 1:].reset_index(drop=True)
             df.columns = headers
 
-            # Filter necessary columns
+            
             columns_to_keep = ["Course Code", "Course Title", "Credits", "Grade", "Date"]
             filtered_columns = [col for col in columns_to_keep if col in df.columns]
             df = df[filtered_columns]
 
-            # Basic cleaning
+            
             df = df.dropna()
             df = df.reset_index(drop=True)
             df['Credits'] = pd.to_numeric(df['Credits'], errors='coerce')
@@ -72,34 +72,34 @@ class CGPACalculator:
             df['Credits'] = df['Credits'].astype(int)
             df['Course Code'] = df['Course Code'].str.strip()
             
-            # Store original course titles for display
+            
             df['display_title'] = df['Course Title'].str.strip()
             
-            # Create normalized course titles for comparison
+            
             df['normalized_title'] = df['Course Title'].apply(self.normalize_course_title)
             
-            # Handle dates
+            
             if 'Date' in df.columns:
                 df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
             else:
                 df['Date'] = pd.date_range(end='today', periods=len(df), freq='D')
 
-            # Sort by date (descending) and remove duplicates based on normalized title
+            
             df = df.sort_values('Date', ascending=False)
             df = df.drop_duplicates(subset='normalized_title', keep='first')
             
-            # Filter valid grades
+            
             df = df[df['Grade'].isin(['S', 'A', 'B', 'C', 'D', 'E', 'F', 'P'])]
 
-            # Rename columns for consistency
+            
             df = df.rename(columns={
                 'Course Code': 'course_code',
-                'display_title': 'course',  # Use display_title for course column
+                'display_title': 'course',  
                 'Credits': 'credits',
                 'Grade': 'grade'
             })
 
-            # Drop the normalized_title column as it's no longer needed
+            
             df = df.drop(columns=['normalized_title'])
 
             return df
@@ -110,7 +110,7 @@ class CGPACalculator:
 
     def calculate_current_cgpa(self, df):
         """Calculate the CGPA from the current grades."""
-        df_calc = df[df['grade'] != 'P'].copy()  # Exclude 'P' grades
+        df_calc = df[df['grade'] != 'P'].copy()  
         df_calc['grade_points'] = df_calc['grade'].map(self.grade_points)
         df_calc['weighted_points'] = df_calc['credits'] * df_calc['grade_points']
 
@@ -125,7 +125,7 @@ class CGPACalculator:
         distribution = {}
         for grade in self.grade_points:
             credits = df[df['grade'] == grade]['credits'].sum()
-            if credits > 0:  # Only include grades with credits
+            if credits > 0:  
                 distribution[grade] = credits
         return distribution
 
@@ -137,14 +137,14 @@ class CGPACalculator:
         print("\n=== Current Grade Analysis ===")
         print(f"\nTotal Courses: {len(df)}")
         print("\nGrade Distribution (Credits):")
-        for grade in ['S', 'A', 'B', 'C', 'D', 'E', 'F']:  # Print in order
+        for grade in ['S', 'A', 'B', 'C', 'D', 'E', 'F']:  
             credits = distribution.get(grade, 0)
             if credits > 0:
                 print(f"{grade}: {credits:.1f} credits")
 
         print(f"\nCurrent CGPA: {current_cgpa:.2f}")
 
-        # Print courses by grade
+        
         print("\nCourses by Grade:")
         for grade in ['S', 'A', 'B', 'C', 'D', 'E', 'F']:
             courses = df[df['grade'] == grade]
