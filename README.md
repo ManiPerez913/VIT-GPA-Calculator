@@ -1,6 +1,7 @@
 # VIT-GPA-Calculator
 
 ![Group 464](https://github.com/user-attachments/assets/7b0788b6-c50f-40e3-9a17-9715ac0c9d89)
+![Group 465](https://github.com/user-attachments/assets/0d58ec90-0c43-40ac-94a0-e54da8882196)
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/VIT-GPA-Calculator/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
