@@ -3,6 +3,7 @@ import pandas as pd
 import re
 import os
 from datetime import datetime
+from itertools import product
 from rich.console import Console, Group
 from rich.table import Table
 from rich.panel import Panel
@@ -228,19 +229,18 @@ class CGPACalculator:
         console.print(viz_table)
 
     def visualize_grade_history(self, df):
-        """Display a grade history showing cumulative CGPA over time."""
-        # Determine which date column to use.
+        """Display grade history as a table and as a simple line graph of cumulative CGPA over time."""
         date_col = "Date" if "Date" in df.columns else ("Result Declared On" if "Result Declared On" in df.columns else None)
         if not date_col:
             console.print("[red]No date column available for grade history visualization.[/red]")
             return
 
-        # Consider only courses with a valid grade (excluding 'P').
         df_calc = df[df["grade"] != "P"].copy()
         df_history = df_calc.sort_values(by=date_col, ascending=True).reset_index(drop=True)
         cumulative_points = 0
         cumulative_credits = 0
         history_data = []
+        cgpa_values = []
         for _, row in df_history.iterrows():
             grade = row["grade"]
             credits = row["credits"]
@@ -249,8 +249,9 @@ class CGPACalculator:
             cumulative_credits += credits
             cgpa = cumulative_points / cumulative_credits if cumulative_credits > 0 else 0
             history_data.append((row[date_col].strftime("%Y-%m-%d"), cgpa))
+            cgpa_values.append(cgpa)
 
-        # Display the history in a table with a simple bar visualization.
+        # Display history table.
         history_table = Table(title="Grade History (Cumulative CGPA Over Time)", box=box.SIMPLE_HEAVY, border_style="magenta")
         history_table.add_column("Date", style="cyan", justify="center")
         history_table.add_column("Cumulative CGPA", style="bold green", justify="center")
@@ -260,6 +261,26 @@ class CGPACalculator:
             bar = "█" * bar_length
             history_table.add_row(date_str, f"{cgpa:.2f}", bar)
         console.print(history_table)
+        # Also show a simple line graph.
+        self.visualize_line_graph(cgpa_values, title="CGPA Progression")
+
+    def visualize_line_graph(self, data, title="Line Graph", height=10, width=50):
+        """Display a simple ASCII line graph given a list of numeric data."""
+        if not data:
+            console.print("[red]No data for line graph.[/red]")
+            return
+        max_val = max(data)
+        min_val = min(data)
+        range_val = max_val - min_val if max_val != min_val else 1
+        grid = [[" " for _ in range(width)] for _ in range(height)]
+        n = len(data)
+        for i, val in enumerate(data):
+            col = int(i * (width - 1) / (n - 1)) if n > 1 else 0
+            row = int((max_val - val) / range_val * (height - 1))
+            grid[row][col] = "*"
+        console.print(f"[bold blue]{title}[/bold blue]")
+        for row in grid:
+            console.print("".join(row))
 
 
 def simulate_grade_improvement(calculator, original_distribution, original_cgpa):
@@ -382,6 +403,109 @@ def simulate_future_courses(calculator, current_distribution):
             console.print("[red]Invalid choice. Please try again.[/red]")
 
 
+def plan_target_cgpa(calculator, current_total_credits, current_total_points):
+    console.print(Panel.fit("[bold blue]Target CGPA Planning[/bold blue]", border_style="bright_blue"))
+    try:
+        target = float(console.input("[bold cyan]Enter your target CGPA: [/bold cyan]"))
+    except ValueError:
+        console.print("[red]Invalid target CGPA.[/red]")
+        return
+
+    console.print("[bold]Select Input Mode:[/bold]\n1) Course-by-Course\n2) Aggregate Mode")
+    mode = console.input("[bold cyan]Enter mode (1 or 2): [/bold cyan]").strip()
+    if mode == "1":
+        try:
+            n = int(console.input("[bold cyan]How many future courses? [/bold cyan]"))
+        except ValueError:
+            console.print("[red]Invalid number.[/red]")
+            return
+        courses = []
+        total_future_credits = 0
+        for i in range(n):
+            course_name = console.input(f"[bold cyan]Enter course code/name for course {i+1}: [/bold cyan]")
+            try:
+                credits = float(console.input(f"[bold cyan]Enter credits for course {i+1}: [/bold cyan]"))
+            except ValueError:
+                console.print("[red]Invalid credits entered.[/red]")
+                return
+            courses.append((course_name, credits))
+            total_future_credits += credits
+
+        required_future_points = target * (current_total_credits + total_future_credits) - current_total_points
+        required_avg = required_future_points / total_future_credits
+        console.print(Panel.fit(
+            f"To reach a target CGPA of [bold]{target:.2f}[/bold], you need to average at least [bold]{required_avg:.2f}[/bold] grade points per credit in your future courses.",
+            title="Required Average", border_style="green"))
+
+        simulate = console.input("[bold cyan]Do you want to simulate predicted grades for these courses? (Y/N): [/bold cyan]").strip().lower()
+        if simulate == "y":
+            predicted = []
+            future_points = 0
+            for course, credits in courses:
+                grade = console.input(f"[bold cyan]Enter predicted grade for {course} (S/A/B/C/D/E/F): [/bold cyan]").upper().strip()
+                gp = calculator.grade_points.get(grade, 0)
+                future_points += credits * gp
+                predicted.append((course, credits, grade, gp))
+            projected_cgpa = (current_total_points + future_points) / (current_total_credits + total_future_credits)
+            table = Table(title="Predicted Grades", box=box.SIMPLE_HEAVY)
+            table.add_column("Course")
+            table.add_column("Credits", justify="right")
+            table.add_column("Predicted Grade")
+            table.add_column("Grade Points", justify="right")
+            for course, credits, grade, gp in predicted:
+                table.add_row(course, str(credits), grade, str(gp))
+            console.print(table)
+            console.print(f"Projected overall CGPA: [bold green]{projected_cgpa:.2f}[/bold green]")
+    elif mode == "2":
+        try:
+            num_groups = int(console.input("[bold cyan]Enter number of future course groups: [/bold cyan]"))
+        except ValueError:
+            console.print("[red]Invalid number.[/red]")
+            return
+        groups = []
+        total_future_credits = 0
+        for i in range(num_groups):
+            desc = console.input(f"[bold cyan]Enter description for group {i+1}: [/bold cyan]")
+            try:
+                credits = float(console.input(f"[bold cyan]Enter total credits for group {i+1}: [/bold cyan]"))
+            except ValueError:
+                console.print("[red]Invalid credits.[/red]")
+                return
+            groups.append((desc, credits))
+            total_future_credits += credits
+
+        required_future_points = target * (current_total_credits + total_future_credits) - current_total_points
+        required_avg = required_future_points / total_future_credits
+        console.print(Panel.fit(
+            f"To reach a target CGPA of [bold]{target:.2f}[/bold], you need to average at least [bold]{required_avg:.2f}[/bold] grade points per credit in your future courses.",
+            title="Required Average", border_style="green"))
+
+        possible_grades = ['S', 'A', 'B', 'C', 'D', 'E', 'F']
+        valid_combinations = []
+        for combo in product(possible_grades, repeat=num_groups):
+            future_points = 0
+            for (desc, credits), grade in zip(groups, combo):
+                gp = calculator.grade_points.get(grade, 0)
+                future_points += credits * gp
+            projected_cgpa = (current_total_points + future_points) / (current_total_credits + total_future_credits)
+            if projected_cgpa >= target:
+                valid_combinations.append((combo, projected_cgpa))
+        if valid_combinations:
+            valid_combinations.sort(key=lambda x: x[1])
+            table = Table(title="Valid Grade Combinations", box=box.SIMPLE_HEAVY)
+            for i, (desc, credits) in enumerate(groups, start=1):
+                table.add_column(f"Group {i}\n({desc}, {credits} cr)", justify="center")
+            table.add_column("Projected CGPA", justify="center")
+            for combo, cgpa in valid_combinations:
+                row = list(combo) + [f"{cgpa:.2f}"]
+                table.add_row(*row)
+            console.print(table)
+        else:
+            console.print("[red]No valid grade combination found with the given groups to achieve the target CGPA.[/red]")
+    else:
+        console.print("[red]Invalid mode selected.[/red]")
+
+
 def main():
     # Display ASCII Banner
     ascii_art = Text(
@@ -418,6 +542,11 @@ def main():
     calculator = CGPACalculator()
     current_cgpa, original_dist = calculator.print_analysis(clean_df)
 
+    # Compute current total credits and total points (excluding 'P' grades).
+    df_calc = clean_df[clean_df["grade"] != "P"].copy()
+    current_total_credits = df_calc["credits"].sum()
+    current_total_points = (df_calc["credits"] * df_calc["grade"].map(calculator.grade_points)).sum()
+
     # Initialize simulation distributions.
     improved_distribution = original_dist.copy()  # for grade improvement simulation
     future_distribution = original_dist.copy()    # for future courses simulation
@@ -431,19 +560,18 @@ def main():
         menu_table.add_row("2", "Simulate Future Courses")
         menu_table.add_row("3", "Visualize Grade History")
         menu_table.add_row("4", "Visualize Final Grade Distribution")
-        menu_table.add_row("5", "Exit")
+        menu_table.add_row("5", "Plan to Reach Target CGPA")
+        menu_table.add_row("6", "Exit")
         console.print(menu_table)
 
-        choice = console.input("[bold cyan]Enter your choice (1-5): [/bold cyan]").strip()
+        choice = console.input("[bold cyan]Enter your choice (1-6): [/bold cyan]").strip()
         if choice == "1":
             improved_distribution, current_cgpa = simulate_grade_improvement(calculator, original_dist, current_cgpa)
         elif choice == "2":
-            # Start future simulation from the improved distribution if grade improvements were applied.
             future_distribution = simulate_future_courses(calculator, improved_distribution)
         elif choice == "3":
             calculator.visualize_grade_history(clean_df)
         elif choice == "4":
-            # Let the user choose which distribution to visualize.
             viz_menu = Table(title="Visualization Options", box=box.SIMPLE_HEAVY, border_style="cyan")
             viz_menu.add_column("Option", justify="center", style="bold white")
             viz_menu.add_column("Description", style="cyan")
@@ -461,6 +589,8 @@ def main():
             else:
                 console.print("[red]Invalid choice.[/red]")
         elif choice == "5":
+            plan_target_cgpa(calculator, current_total_credits, current_total_points)
+        elif choice == "6":
             console.print("[bold magenta]Exiting simulation. Thank you![/bold magenta]")
             break
         else:
