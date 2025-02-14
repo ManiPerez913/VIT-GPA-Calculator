@@ -7,7 +7,7 @@
 [![Python Version](https://img.shields.io/badge/Python-3.7%2B-blue)](https://www.python.org/downloads/)
 [![Issues](https://img.shields.io/github/issues/Kaos599/VIT-GPA-Calculator)](https://github.com/Kaos599/VIT-GPA-Calculator/issues)
 
-A Python application that extracts course grade data from a PDF file, calculates your current CGPA, and allows you to simulate grade improvements.
+A Python application that extracts course grade data from a PDF file, calculates your current CGPA, and allows you to simulate grade improvements and plan for future courses.
 
 ## Table of Contents
 
@@ -20,23 +20,66 @@ A Python application that extracts course grade data from a PDF file, calculates
 - [Contributing](#contributing)
 - [License](#license)
 
-VIT-GPA-Calculator is a Python application that extracts course grade data from a PDF file, calculates your current CGPA, and allows you to simulate grade improvements. It uses the [Camelot](https://camelot-py.readthedocs.io/en/master/) library to parse tables from PDFs and [Pandas](https://pandas.pydata.org/) for data manipulation.
+VIT-GPA-Calculator is a Python application that extracts course grade data from a PDF file (specifically, your VIT grade history), calculates your current CGPA, and provides powerful simulation and planning tools. It uses the [Camelot](https://camelot-py.readthedocs.io/en/master/) library to parse tables from PDFs and [Pandas](https://pandas.pydata.org/) for data manipulation.  The advanced version leverages the [Rich](https://rich.readthedocs.io/en/stable/) library for a visually appealing and interactive command-line interface.
 
 ## Features
 
-- Extracts table data from PDF files using Camelot.
-- Cleans and processes data to extract course codes, course titles, credits, grades, and dates.
-- Calculates current CGPA excluding courses with grade 'P'.
-- Displays a detailed analysis of grade distribution and courses by grade.
-- Simulates grade improvements and calculates potential new CGPA.
-- Enhanced user interface with Rich library for better visualization (in `main_advanced.py`).
+- **Data Extraction and Cleaning:**
+    - Extracts table data from PDF files using Camelot.
+    - Cleans and processes data to extract course codes, course titles, credits, grades, and dates (or result declaration dates).
+    - Handles variations in PDF formats and automatically detects the header row.
+    - Normalizes course titles for accurate duplicate detection.
+    - Removes duplicate course entries, keeping the most recent grade.
+    - Filters out invalid grades.
+
+- **CGPA Calculation and Analysis:**
+    - Calculates current CGPA, excluding courses with a 'P' grade.
+    - Provides a detailed grade distribution analysis (number of credits for each grade).
+    - Presents a summary of total courses and current CGPA.
+    - Displays courses grouped by grade.
+
+- **Simulations and Planning:**
+    - **Grade Improvement Simulation:**
+        - Allows simulating the impact of improving grades in specific courses.
+        - Converts credits from a lower grade to a higher grade.
+        - Calculates and displays the projected CGPA after improvements.
+        - Interactive menu to add, view, reset, and finalize improvement changes.
+    - **Future Courses Simulation:**
+        - Allows adding planned future courses with predicted grades and credits.
+        - Calculates and displays the projected CGPA, including future courses.
+        - Interactive menu to add, view, reset, and finalize future course additions.
+    - **Target CGPA Planning:**
+        - Helps plan to reach a desired target CGPA.
+        - Two input modes:
+            - **Course-by-Course:**  Enter details for individual future courses.
+            - **Aggregate Mode:** Enter groups of courses with total credits and descriptions.
+        - Calculates the required average grade points per credit to achieve the target.
+        - (Course-by-Course Mode) Simulates predicted grades and shows the projected CGPA.
+        - (Aggregate Mode) Displays valid grade combinations across course groups that meet or exceed the target CGPA.
+
+- **Visualization:**
+    - **Grade History Visualization:**
+        - Displays a table showing the cumulative CGPA progression over time.
+        - Includes a simple ASCII line graph visualizing the CGPA trend.
+    - **Grade Distribution Visualization:**
+        - Displays a bar chart of the grade distribution.
+        - Options to visualize the original distribution, the distribution after grade improvement simulation, or the distribution after future courses simulation.
+    - **ASCII Line Graph Visualization:**
+        -  A general-purpose function to display a simple ASCII line graph for any numeric data.
+
+- **User Interface (main_advanced.py):**
+    - Enhanced user interface using the Rich library.
+    - Interactive menus and prompts for easy navigation.
+    - Clear and visually appealing output with tables, panels, and progress bars.
+    - Comprehensive instructions and error handling.
+    - ASCII art banner.
 
 ## Versions
 
 This project includes two versions of the main application:
 
-1. **`main.py`**: A basic version of the GPA calculator with console output.
-2. **`main_advanced.py`**: An advanced version with a richer user interface using the Rich library for better visualization.
+1.  **`main.py`**: A basic version of the GPA calculator with console output.
+2.  **`main_advanced.py`**: An advanced version with a richer user interface using the Rich library for better visualization and interactive features.
 
 ## Requirements
 
@@ -47,46 +90,49 @@ This project includes two versions of the main application:
 
 ## Setup
 
-1. **Clone the repository**
+1.  **Clone the repository**
 
-   ```sh
-   git clone https://github.com/Kaos599/VIT-GPA-Calculator.git
-   cd VIT-GPA-Calculator
-   ```
-2. **Install dependencies**
+    ```sh
+    git clone https://github.com/Kaos599/VIT-GPA-Calculator.git
+    cd VIT-GPA-Calculator
+    ```
+2.  **Install dependencies**
 
-It's recommended to use a virtual environment. For example, using venv:
- ```sh
- python -m venv venv
- source venv/bin/activate   # On Windows use: venv\Scripts\activate
- pip install -r requirements.txt
-```
-3. **Install Ghostscript**
+    It's recommended to use a virtual environment. For example, using venv:
 
-Camelot requires Ghostscript. Please install it from [Ghostscript Downloads.](https://ghostscript.com/releases/gsdnld.html)
+    ```sh
+    python -m venv venv
+    source venv/bin/activate  # On Windows use: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
+3.  **Install Ghostscript**
+
+    Camelot requires Ghostscript. Please install it from [Ghostscript Downloads.](https://ghostscript.com/releases/gsdnld.html)
 
 ## Usage
 
-- Download your Grade History PDF from VTOP.
+-   Download your Grade History PDF from VTOP.
 
-- Run the application:
-  - For the basic version:
-    ```sh
-    python main.py
-    ```
-  - For the advanced version:
-    ```sh
-    python main_advanced.py
-    ```
+-   Run the application:
+    -   For the basic version:
 
-- When prompted, enter the full path to your PDF grade history file.
+        ```sh
+        python main.py
+        ```
+    -   For the advanced version:
 
-- Follow the on-screen instructions to view your current grade analysis or simulate grade improvements.
+        ```sh
+        python main_advanced.py
+        ```
 
+-   When prompted, enter the full path to your PDF grade history file.
+
+-   Follow the on-screen instructions to view your current grade analysis, simulate grade improvements, plan future courses, or visualize your data. The advanced version provides a menu-driven interface.
 
 ## Contributing
+
 Contributions are welcome! Please fork this repository and submit pull requests.
 
 ## License
+
 This project is licensed under the MIT License.
- 
