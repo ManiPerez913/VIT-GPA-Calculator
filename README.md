@@ -1,10 +1,12 @@
 # VIT-GPA-Calculator
 
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/7b0788b6-c50f-40e3-9a17-9715ac0c9d89" width="400">
+  <img src="https://github.com/user-attachments/assets/7b0788b6-c50f-40e3-9a17-9715ac0c9d89" width="1000">
+</div>
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/0d58ec90-0c43-40ac-94a0-e54da8882196" width="500">
 </div>
 
-![Group 465](https://github.com/user-attachments/assets/0d58ec90-0c43-40ac-94a0-e54da8882196)
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/yourusername/VIT-GPA-Calculator/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
@@ -37,7 +39,7 @@ VIT-GPA-Calculator is a Python application that extracts course grade data from 
     - Filters out invalid grades.
 
 - **CGPA Calculation and Analysis:**
-    - Calculates current CGPA, excluding courses with a 'P' grade.
+    - Calculates current CGPA.
     - Provides a detailed grade distribution analysis (number of credits for each grade).
     - Presents a summary of total courses and current CGPA.
     - Displays courses grouped by grade.
