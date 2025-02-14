@@ -524,7 +524,7 @@ def main():
 
     # Prompt for PDF path.
     while True:
-        pdf_path = console.input("[bold cyan]📁 Enter PDF path (or 'q' to quit): [/]").strip()
+        pdf_path = console.input("[bold cyan]📁 Enter PDF path (or 'q' to quit): [/bold cyan]").strip()
         if pdf_path.lower() == "q":
             return
         if os.path.exists(pdf_path):
@@ -550,6 +550,18 @@ def main():
     # Initialize simulation distributions.
     improved_distribution = original_dist.copy()  # for grade improvement simulation
     future_distribution = original_dist.copy()    # for future courses simulation
+
+    # Display Main Menu Instructions
+    instructions = """
+[bold cyan]Main Menu Options Instructions:[/bold cyan]
+1. [bold]Simulate Grade Improvement[/bold]: Adjust your current grades by simulating grade improvements. Convert credits from a lower grade to a higher grade and see the updated CGPA.
+2. [bold]Simulate Future Courses[/bold]: Add expected future courses by entering predicted grades and credits. See how these courses affect your overall CGPA.
+3. [bold]Visualize Grade History[/bold]: View a table and an ASCII line graph showing your cumulative CGPA progression over time.
+4. [bold]Visualize Final Grade Distribution[/bold]: Display a bar chart of your grade distribution. You can choose to see the original, after grade improvement, or after future courses simulation.
+5. [bold]Plan to Reach Target CGPA[/bold]: Set a desired target CGPA and plan your future courses either course-by-course or in groups. This will calculate what average grade point you need and display possible grade combinations to achieve your goal.
+6. [bold]Exit[/bold]: Close the application.
+"""
+    console.print(Panel.fit(instructions, title="[bold yellow]Main Menu Instructions[/bold yellow]", border_style="magenta"))
 
     # Main simulation menu
     while True:
