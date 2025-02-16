@@ -15,7 +15,16 @@
 
 A Python application that extracts course grade data from a PDF file, calculates your current CGPA, and allows you to simulate grade improvements and plan for future courses.
 
-## Table of Contents
+## Screenshots
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/ab0666d8-438e-4136-92a7-bded9e8a8a28" width="400">
+  <img src="https://github.com/user-attachments/assets/345f3393-04da-46e6-bfab-fec3583b5ddc" width="400">
+  <img src="https://github.com/user-attachments/assets/dda54b98-e19c-4272-bf59-4ee19ffd1b28" width="400">
+  <img src="https://github.com/user-attachments/assets/83eada9c-400f-4445-826c-e3caf85b8f2d" width="400">
+</div>
+
+
+## Table of Contents!
 
 - [Features](#features)
 - [Versions](#versions)
